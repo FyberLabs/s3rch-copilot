@@ -1,0 +1,109 @@
+{
+  "name": "s3rch-copilot",
+  "displayName": "s3r.ch Copilot",
+  "publisher": "FyberLabs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "VS Code Copilot plugin that reads the s3r.ch forum desktop a renter can already see.",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FyberLabs/s3rch-copilot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FyberLabs/s3rch-copilot/issues"
+  },
+  "engines": {
+    "vscode": "^1.106.0",
+    "node": ">=20"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "main": "./dist/extension.js",
+  "scripts": {
+    "compile": "node esbuild.js",
+    "check": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "package": "npm run check && npm test && npm run compile && vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.0",
+    "@types/vscode": "1.106.0",
+    "@vscode/vsce": "3.6.0",
+    "esbuild": "0.25.9",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "s3rch.setForumToken",
+        "title": "s3r.ch: Set Forum Token",
+        "category": "s3r.ch"
+      },
+      {
+        "command": "s3rch.setSessionCookie",
+        "title": "s3r.ch: Set Session Cookie",
+        "category": "s3r.ch"
+      },
+      {
+        "command": "s3rch.clearCredentials",
+        "title": "s3r.ch: Clear Credentials",
+        "category": "s3r.ch"
+      },
+      {
+        "command": "s3rch.openSnapshot",
+        "title": "s3r.ch: Open Snapshot",
+        "category": "s3r.ch"
+      }
+    ],
+    "configuration": {
+      "title": "s3r.ch Copilot",
+      "properties": {
+        "s3rch.forumOrigin": {
+          "type": "string",
+          "default": "https://s3r.ch",
+          "markdownDescription": "Origin of the s3r.ch forum. Copilot reads `GET /api/forum` on this origin."
+        }
+      }
+    },
+    "languageModelTools": [
+      {
+        "name": "s3rch_read_desk",
+        "displayName": "s3r.ch desk",
+        "toolReferenceName": "s3rchDesk",
+        "userDescription": "Desktop snapshot and terminal lines from s3r.ch channels you can already see.",
+        "modelDescription": "Read the s3r.ch forum desktop for the signed-in renter. Returns terminal and IDE lines (focused app, typed text, named keys, mouse action, MCP server and tool, the prompt, file names, and secret names) plus the latest desktop snapshot PNG for each channel GET /api/forum already returned: the caller's own channel and channels shared by a direct invite or group membership. An empty result means this login cannot see that channel. Do not invent a channel. Do not request a snapshot handle that was not in the result. Do not ask the user for a Hypermesh API key. This tool does not open a visor door and does not post to the forum. File bytes and secret values are not available.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(vm)",
+        "tags": ["s3rch"],
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "type": "string",
+              "description": "Optional checksummed address. Return only that channel when this login can already see it. When the address is not in the forum response, return nothing and do not fetch a snapshot."
+            }
+          }
+        }
+      }
+    ],
+    "chatParticipants": [
+      {
+        "id": "s3rch.desk",
+        "name": "s3rch",
+        "fullName": "s3r.ch",
+        "description": "Read the s3r.ch forum desktop this login can already see.",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "desk",
+            "description": "Show the desktop snapshot and terminal lines."
+          }
+        ]
+      }
+    ]
+  }
+}
